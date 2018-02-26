@@ -1,0 +1,87 @@
+
+/****************************************************************
+**                                                             **
+** Name:        AnimPlayer                                     **
+** Author:      Dimitris Panokostas                            **
+** Version:     2.0                                            **
+** Date:        17.07.16                                       **
+** Interpreter: Hollywood 6.1                                  **
+**                                                             **
+** History:                                                    **
+**                                                             **
+** - initial release                                           **
+**                                                             **
+****************************************************************/
+Const #DEBUG = False
+/*
+** Make sure we have Hollywood 6.1!
+*/
+@VERSION 6,1
+
+/*
+** This script requires the RapaGUI plugin
+*/
+@REQUIRE "RapaGUI"
+
+/*
+** Information about this app
+*/
+@APPTITLE "AnimPlayer"
+@APPVERSION "$VER: AnimPlayer 2.0 beta (17.07.16)"
+@APPCOPYRIGHT "(C) Copyright 2016 by Dimitris Panokostas"
+@APPAUTHOR "Dimitris Panokostas"
+@APPDESCRIPTION "A simple anim player done in Hollywood"
+
+/*
+** Button and list view images
+*/
+@BRUSH 1, "data/tapestart.png", {LoadAlpha = True}
+@BRUSH 2, "data/tapeplay.png", {LoadAlpha = True}
+@BRUSH 3, "data/tapestop.png", {LoadAlpha = True}
+@BRUSH 4, "data/tapeend.png", {LoadAlpha = True}
+@BRUSH 5, "data/add.png", {LoadAlpha = True}
+@BRUSH 6, "data/remove.png", {LoadAlpha = True}
+@BRUSH 7, "data/moveup.png", {LoadAlpha = True}
+@BRUSH 8, "data/movedown.png", {LoadAlpha = True}
+@BRUSH 9, "data/video.png", {LoadAlpha = True}
+
+/*
+** Our BGPic
+*/
+@BRUSH 10, "data/cover.png"
+
+/*
+** The GUI xml definition
+*/
+@FILE 1, "AnimPlayer.xml"
+
+/*
+** Use a black background for our Hollywood display
+*/
+@DISPLAY {Color = #BLACK, Title = "AnimPlayer", Sizeable = True, Layers = True}
+
+@INCLUDE "AnimPlayerLib.hws"
+
+DisplayBrush(10, #CENTER, #CENTER)
+
+; dynamically create GUI from an external *.xml file definition
+Local gui = ""
+While Not Eof(1) Do gui = gui .. ReadLine(1)
+moai.CreateApp(gui)
+
+; get plugin file types
+p_GetPluginFiletypes()
+
+; listen to these events!
+InstallEventHandler({RapaGUI = p_EventFunc, SizeWindow = p_EventFunc})
+; Disabled OnDropFile until RapaGUI adds Drag and Drop support
+;InstallEventHandler({RapaGUI = p_EventFunc, SizeWindow = p_EventFunc, OnDropFile = p_EventFunc})
+
+musstate$ = "init"
+animDrawInterval = Nil
+animSize = "original"
+
+; main loop!
+Repeat
+	WaitEvent
+Forever

@@ -1,0 +1,403 @@
+/*
+** Enable/disable buttons depending on current list selection
+*/
+Function p_SetStates(ac, num)
+	moai.Set("rem", "disabled", (ac = -1))
+	moai.Set("mvdn", "disabled", (ac = num - 1) Or (ac = -1))
+	moai.Set("mvup", "disabled", (ac = 0) Or (ac = -1))
+	moai.Set("play", "disabled", (ac = -1))
+
+	If musstate$ = "playing"
+		moai.Set("play", "disabled", True)
+		moai.Set("last", "disabled", (ac = 0))
+		moai.Set("next", "disabled", (ac = num - 1))
+	EndIf
+	
+	Local title = moai.DoMethod("lv", "GetEntry", ac)
+	moai.Set("main", "Title", title)
+	
+EndFunction
+
+/*
+** Disable buttons that only work while playback is active
+*/
+Function p_SetStopStates()
+	moai.Set("play", "disabled", False)
+	moai.Set("last", "disabled", True)
+	moai.Set("next", "disabled", True)
+	moai.Set("stop", "disabled", True)
+EndFunction
+
+/*
+** Enable/disable buttons depending on current list selection
+*/
+Function p_RefreshActive()
+	Local ac = moai.Get("lv", "active")
+	Local num = moai.Get("lv", "entries")
+
+	If GetType(ac) = #STRING
+		If ac = "Off" Then ac = -1
+	EndIf
+
+	p_SetStates(ac, num)
+EndFunction
+
+/*
+** Skip to previous track
+*/
+Function p_Last()
+	Local ac = moai.Get("lv", "active")
+	Local num = moai.Get("lv", "entries")
+
+	If ac - 1 >= 0
+		moai.Set("lv", "active", ac - 1)
+		If #DEBUG Then DebugPrint("p_Last(): Changed active Anim to previous, stopping current Anim with p_Stop()...")
+		p_Stop()
+		If #DEBUG Then DebugPrint("p_Last(): Now calling p_LoadSelectedAnim()...")
+		p_LoadSelectedAnim()
+		If #DEBUG Then DebugPrint("p_Last(): Now calling p_Play() on the loaded Anim...")
+		p_Play()
+	EndIf
+EndFunction
+
+/*
+** Skip to next track
+*/
+Function p_Next()
+	Local ac = moai.Get("lv", "active")
+	Local num = moai.Get("lv", "entries")
+
+	If ac + 1 < num
+		moai.Set("lv", "active", ac + 1)
+		If #DEBUG Then DebugPrint("p_Next(): Changed active Anim to next, stopping current Anim with p_Stop()...")
+		p_Stop()
+		If #DEBUG Then DebugPrint("p_Last(): Now calling p_LoadSelectedAnim()...")
+		p_LoadSelectedAnim()
+		If #DEBUG Then DebugPrint("p_Next(): Now calling p_Play() on the loaded Anim...")
+		p_Play()
+	Else
+		If #DEBUG Then DebugPrint("p_Next(): Last Anim in the playlist, now stopping...")
+		p_Stop()
+	EndIf
+EndFunction
+
+/*
+** Return file name of currently selected video
+*/
+Function p_GetVideoSelection()
+	Return(moai.DoMethod("lv", "getentry", "active"))
+EndFunction
+
+/*
+** Start playback
+*/
+Function p_Play()
+	If HaveObject(#ANIM, 1) = False
+		; If we have no Anim, no need to continue
+		If #DEBUG Then DebugPrint("p_Play(): Anim object was not found, giving up...")
+		If Not IsNil(animDrawInterval)
+			ClearInterval(animDrawInterval)
+			animDrawInterval = Nil
+		EndIf
+		Return
+	EndIf
+	
+	; If a previous anim was already playing, we need to stop that first
+	If playing = True
+		If #DEBUG Then DebugPrint("p_Play(): Playing variable was True, calling FinishAsyncDraw() and setting playing to False.")
+		FinishAsyncDraw(playingAnim)
+		playing = False
+	EndIf
+	
+	; Set state at Playing
+	musstate$ = "playing"
+	playing = True
+	p_RefreshActive()
+	
+	; create an interval function to draw the frames
+	If #DEBUG Then DebugPrint("p_Play(): Setting a new Interval")
+	animDrawInterval = SetInterval(Nil, p_DrawNextFrame, 20)
+	If #DEBUG Then DebugPrint("p_Play(): New interval value is:",animDrawInterval)
+EndFunction
+
+/*
+** Resize Display window according to the option selected
+*/
+Function p_ResizeDisplay(scaleOption$, width, height)
+	Local w = 640
+	Local h = 480
+	If HaveObject(#ANIM, 1) = True
+		; Get the current Anim's actual width and height
+		w = GetAttribute(#ANIM, 1, #ATTRWIDTH)
+		h = GetAttribute(#ANIM, 1, #ATTRHEIGHT)
+	EndIf
+	
+	If width = 0 Then width = curwidth
+	If height = 0 Then height = curheight
+	
+	If scaleOption$ = "original"		
+		ScaleLayer(1, "100%", "100%")
+		ChangeDisplaySize(w, h)
+	ElseIf scaleOption$ = "double"
+		ScaleLayer(1, "200%", "200%")
+		ChangeDisplaySize(w*2, h*2)
+	ElseIf width > 0 And height > 0
+		ScaleLayer(1, width, height)
+		ChangeDisplaySize(width, height)
+	EndIf	
+EndFunction
+
+/*
+** Stop playback
+*/
+Function p_Stop()
+	If Not IsNil(animDrawInterval) 
+		If #DEBUG Then DebugPrint("p_Stop(): Attempting to ClearInterval():", animDrawInterval)
+		ClearInterval(animDrawInterval)
+		animDrawInterval = Nil
+	EndIf
+	
+	If playing = True And curvideo$ <> ""
+		If #DEBUG Then DebugPrint("p_Stop(): Playing variable was True or an Anim was active, will now call FinishAsyncDraw()")
+		FinishAsyncDraw(playingAnim)
+	EndIf
+	
+	playing = False
+	musstate$ = "stopped"
+	curvideo$ = ""
+	
+	If #DEBUG Then DebugPrint("p_Stop(): Now calling p_SetStopStates()")
+	p_SetStopStates()
+EndFunction
+
+
+/* get additional anim file types supported by plugins */
+Function p_GetPluginFiletypes()
+
+	Local p = GetPlugins()
+
+	freqmask$ = "anim|anim5|anim7|anim8|anim8w|anim8l|anim16|anim32|ham6|ham8"
+
+	; iterate over all plugins that we have
+	For Local k = 0 To ListItems(p) - 1
+	
+		Local ft = p[k].Filetypes
+		
+		; iterate over all file types that this plugin makes available
+		For Local i = 0 To ListItems(ft) - 1
+			
+			; does this plugin support anims? Add its file type to our mask!
+			If (ft[i].Type = #FILETYPE_ANIM) And (Not (ft[i].Flags & #FILETYPEFLAGS_SAVE))
+				freqmask$ = freqmask$ .. "|" .. ft[i].extensions
+			EndIf
+		Next		
+	Next	
+
+EndFunction
+
+/*
+** Adds a list of files in the Playlist listview
+*/
+Function p_InsertFilesInList(files)
+	If files[0] = "" Then Return
+	Local c = 0
+	While files[c] <> ""
+		moai.DoMethod("lv", "insert", "bottom", 9, files[c])
+		c = c + 1
+	Wend
+	moai.Set("lv", "active", "Top")
+EndFunction
+
+/*
+** Loads the selected Anim and displays the first frame
+*/
+Function p_LoadSelectedAnim()
+	Local f$ = p_GetVideoSelection()
+	Local ac = moai.Get("lv", "active")
+	Local num = moai.Get("lv", "entries")
+
+	; do not fail if unknown error format
+	ExitOnError(False)
+	
+	If #DEBUG Then DebugPrint("p_LoadSelectedAnim(): Attempting to call LoadAnim()...")
+	LoadAnim(1, f$, {FromDisk = True})
+	Local err = GetLastError()
+	ExitOnError(True)
+
+	If err <> #ERR_NONE
+		moai.Request("AnimPlayer", GetErrorName(err), "OK")
+		Return
+	EndIf
+
+	; enable buttons that can be used now
+	moai.Set("stop", "disabled", False)
+	moai.Set("last", "disabled", (ac = 0))
+	moai.Set("next", "disabled", (ac = num - 1))
+	; Remove the previous layer
+	RemoveLayer(1)
+	
+	curvideo$ = f$
+	playingAnim = PlayAnim(1, 0, 0, {Speed = #DEFAULTSPEED, Times = 1, Async = True})
+	
+	p_ResizeDisplay(animSize)
+EndFunction
+
+/*
+** Draw next Anim frame
+*/
+Function p_DrawNextFrame()
+	
+	If HaveObject(#ANIM, 1) = False
+		; Try to load the selected Anim if possible
+		If #DEBUG Then DebugPrint("p_DrawNextFrame(): Anim object was not loaded, attempting to load...")
+		p_LoadSelectedAnim()
+	EndIf
+	
+	If HaveObject(#ANIM, 1) = False
+		If #DEBUG Then DebugPrint("p_DrawNextFrame(): Anim object was not found, giving up...")
+		If Not IsNil(animDrawInterval)
+			ClearInterval(animDrawInterval)
+			animDrawInterval = Nil
+		EndIf
+		Return
+	EndIf
+	
+	If Not IsNil(playingAnim) And playing = True
+		If #DEBUG Then DebugPrint("p_DrawNextFrame(): playingAnim and Playing are valid:", playingAnim, playing)
+		; Draw the next Anim frame
+		done = AsyncDrawFrame(playingAnim)
+	EndIf
+
+	; If the animation is finished, go to the next in the playlist
+	If done = True
+		If #DEBUG Then DebugPrint("p_DrawNextFrame(): Done was True, Anim finished")
+		musstate$ = "stopped"
+		playing = False
+		If Not IsNil(animDrawInterval)
+			If #DEBUG Then DebugPrint("p_DrawNextFrame(): Clearing Interval before calling p_Next()")
+			ClearInterval(animDrawInterval)
+			animDrawInterval = Nil
+		EndIf
+		p_Next()
+	EndIf
+EndFunction
+
+/*
+** Event handler for the GUI
+*/
+Function p_GUIEvent(id)
+	Switch id
+	Case "open":
+		Local files = FileRequest("Select Anim(s) to play", freqmask$, #REQ_MULTISELECT)
+		If files[0] <> ""
+			If p_GetVideoSelection() = curvideo$ 
+				If #DEBUG Then DebugPrint("Open: Current video is playing, will now attempt to Stop it. Calling p_Stop()...")
+				p_Stop()
+			EndIf
+			If #DEBUG Then DebugPrint("Open: Will now clear the playlist")
+			moai.DoMethod("lv", "Clear")
+			If #DEBUG Then DebugPrint("Open: Attempting to insert files in list")
+			p_InsertFilesInList(files)
+			If curvideo$ = "" Then p_LoadSelectedAnim()
+		EndIf
+	Case "add":
+		Local files = FileRequest("Select Anim(s) to play", freqmask$, #REQ_MULTISELECT)
+		If files[0] <> ""
+			p_InsertFilesInList(files)
+			If curvideo$ = "" Then p_LoadSelectedAnim()
+		EndIf
+	Case "mvup"
+		Local ac = moai.Get("lv", "active")
+		moai.DoMethod("lv", "move", "active", "previous")
+		moai.Set("lv", "active", ac - 1)
+	Case "mvdn"
+		Local ac = moai.Get("lv", "active")
+		moai.DoMethod("lv", "move", "active", "next")
+		moai.Set("lv", "active", ac + 1)
+	Case "play":
+		If curvideo$ = "" Then p_LoadSelectedAnim()
+		p_Play()
+	Case "stop":
+		p_Stop()
+	Case "last"
+		p_Last()
+	Case "next"
+		p_Next()
+	Case "rem":
+		If #DEBUG Then DebugPrint("Remove: Received Remove Event")
+		If p_GetVideoSelection() = curvideo$ 
+			If #DEBUG Then DebugPrint("Remove: Current video is playing, will now attempt to Stop it. Calling p_Stop()...")
+			p_Stop()
+		EndIf
+		If #DEBUG Then DebugPrint("Remove: Attempting to remove the active item from the Playlist...")
+		moai.DoMethod("lv", "remove", "active")
+	Case "about":
+		moai.Request("AnimPlayer2", "AnimPlayer2\n(C) 2016 by Dimitris Panokostas\n", "OK")
+	Case "pl":
+		moai.Set("playlist", "open", moai.Get("mn_pl", "selected"))
+	Case "original":
+		animSize = "original"
+		p_ResizeDisplay(animSize)
+	Case "double":
+		animSize = "double"
+		p_ResizeDisplay(animSize)
+	Case "free":
+		animSize = "free"
+		p_ResizeDisplay(animSize)
+	Case "quit":
+		End
+	EndSwitch
+
+EndFunction
+
+/*
+** Handles all incoming events
+*/
+Function p_EventFunc(msg)
+	Switch msg.action
+	Case "RapaGUI":
+		Switch msg.attribute
+		
+		Case "CloseRequest":
+			If #DEBUG Then DebugPrint("Received CloseRequest Event")
+			moai.Set(msg.id, "open", False)
+			moai.Set("mn_pl", "selected", False)
+			
+		Case "Pressed":
+			If #DEBUG Then DebugPrint("Received Pressed Event")
+			p_GUIEvent(msg.id)
+			
+		Case "Selected":
+			If #DEBUG Then DebugPrint("Received Selected Event")
+			p_GUIEvent(UnrightStr(msg.id, 3))
+			
+		Case "DoubleClick":
+			If #DEBUG Then DebugPrint("Received DoubleClick Event")
+			p_Stop()
+			p_LoadSelectedAnim()
+			p_Play()
+			
+		Case "Active":
+			If #DEBUG Then DebugPrint("Received Active Event, now calling p_RefreshActive()")
+			p_RefreshActive()
+			
+		Case "Release":
+			If #DEBUG Then DebugPrint("Received Release Event, now calling p_Stop()")
+			p_Stop()
+			
+		EndSwitch
+
+	Case "SizeWindow":
+		If #DEBUG Then DebugPrint("Received SizeWindow Event")
+		If HaveObject(#ANIM, 1) = True
+			curwidth = msg.width
+			curheight = msg.height
+			moai.Set("mn_free", "Selected", True)
+			p_ResizeDisplay("free", curwidth, curheight) 
+		EndIf
+		
+	; Disabled until RapaGUI supports Drag and Drop	
+	;Case "OnDropFile":
+	;	p_InsertFilesInList(msg.DropFiles)
+	EndSwitch
+EndFunction

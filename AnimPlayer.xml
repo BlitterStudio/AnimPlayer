@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<application id="app">
+	<menubar id="menu">
+
+		<menu title="_File">
+			<item id="mn_open" shortcut="Ctrl-O">_Open...</item>
+			<item/>
+			<item id="mn_quit" shortcut="Ctrl-Q">_Quit</item>
+		</menu>
+
+		<menu title="_Video">
+			<item id="mn_original" type="radio" selected="true" shortcut="Ctrl-1">Original Size</item>
+			<item id="mn_double" type="radio" selected="false" shortcut="Ctrl-2">Double Size</item>
+			<item id="mn_free" type="radio" selected="false">Free resize</item>
+		</menu>
+		
+		<menu title="V_iew">
+			<item id="mn_pl" type="toggle" selected="false" shortcut="Ctrl-L">Playlist</item>
+		</menu>
+		<menu title="Help">
+			<item id="mn_about" shortcut="Shift-F1">_About...</item>		
+		</menu>	
+	</menubar>
+	
+	<window parent="main" id="playlist" title="Playlist" notify="closerequest" toolwindow="true" open="false">
+		<vgroup>
+			<listview id="lv" notify="active; doubleclick">
+				<column icon="true"/> 
+			</listview>
+		
+			<hgroup>
+				<button id="add" icon="5" tooltip="Add new Anim(s) in the Playlist">Add</button>
+				<button id="mvup" icon="7" disabled="true" tooltip="Move selected Anim upwards">Move up</button>
+				<button id="mvdn" icon="8" disabled="true" tooltip="Move selected Anim downwards">Move down</button>
+				<button id="rem" icon="6" disabled="true" tooltip="Remove selected Anim from the list">Remove</button>
+			</hgroup>
+		</vgroup>
+	</window>
+
+	<window id="main" title="AnimPlayer" activate="true" menubar="menu">
+		<vgroup>
+			<hollywood display="1" fixwidth="false" fixheight="false"/>
+
+			<hgroup>
+				<button id="last" icon="1" disabled="true" tooltip="Go to previous Anim in Playlist">Last</button>
+				<button id="play" icon="2" disabled="true" tooltip="Play selected Anim">Play</button>
+				<button id="stop" icon="3" disabled="true" tooltip="Stop playing Anim">Stop</button>
+				<button id="next" icon="4" disabled="true" tooltip="Go to next Anim in Playlist">Next</button>
+			</hgroup>
+		</vgroup>
+	</window>
+</application>
+
