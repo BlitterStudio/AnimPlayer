@@ -201,7 +201,10 @@ EndFunction
 */
 Function p_InsertFilesInList(files)
 	If files[0] = "" Then Return
-	For Local c = 0 To ListItems(files)-1 Do moai.DoMethod("lv", "insert", "bottom", 9, files[c])
+	For Local c = 0 To ListItems(files)-1
+		If files[c]= "" Then Break
+		moai.DoMethod("lv", "insert", "bottom", 9, files[c])
+	Next
 	moai.Set("lv", "active", "Top")
 EndFunction
 
