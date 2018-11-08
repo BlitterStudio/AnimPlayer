@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Enable/disable buttons depending on current list selection
 */
 Function p_SetStates(ac, num)
@@ -66,7 +66,8 @@ EndFunction
 Function p_Next()
 	Local ac = moai.Get("lv", "active")
 	Local num = moai.Get("lv", "entries")
-
+	
+	If #DEBUG Then DebugPrint("Active Entry: ", ac, "Total Entries: ", num)
 	If ac + 1 < num
 		moai.Set("lv", "active", ac + 1)
 		If #DEBUG Then DebugPrint("p_Next(): Changed active Anim to next, stopping current Anim with p_Stop()...")
@@ -200,11 +201,7 @@ EndFunction
 */
 Function p_InsertFilesInList(files)
 	If files[0] = "" Then Return
-	Local c = 0
-	While files[c] <> ""
-		moai.DoMethod("lv", "insert", "bottom", 9, files[c])
-		c = c + 1
-	Wend
+	For Local c = 0 To ListItems(files)-1 Do moai.DoMethod("lv", "insert", "bottom", 9, files[c])
 	moai.Set("lv", "active", "Top")
 EndFunction
 
@@ -358,6 +355,17 @@ Function p_EventFunc(msg)
 	Case "RapaGUI":
 		Switch msg.attribute
 		
+		Case "DropFile":
+			If #DEBUG Then DebugPrint("Received DropFile Event")
+			If p_GetVideoSelection() = curvideo$ 
+				If #DEBUG Then DebugPrint("Open: Current video is playing, will now attempt to Stop it. Calling p_Stop()...")
+				p_Stop()
+			EndIf
+			If #DEBUG Then DebugPrint("Open: Will now clear the playlist")
+			moai.DoMethod("lv", "Clear")
+			p_InsertFilesInList(msg.triggervalue)
+			If curvideo$ = "" Then p_LoadSelectedAnim()
+			
 		Case "CloseRequest":
 			If #DEBUG Then DebugPrint("Received CloseRequest Event")
 			moai.Set(msg.id, "open", False)
@@ -396,8 +404,6 @@ Function p_EventFunc(msg)
 			p_ResizeDisplay("free", curwidth, curheight) 
 		EndIf
 		
-	; Disabled until RapaGUI supports Drag and Drop	
-	;Case "OnDropFile":
-	;	p_InsertFilesInList(msg.DropFiles)
 	EndSwitch
+	
 EndFunction

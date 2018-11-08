@@ -24,7 +24,7 @@
 	
 	<window parent="main" id="playlist" title="Playlist" notify="closerequest" toolwindow="true" open="false">
 		<vgroup>
-			<listview id="lv" notify="active; doubleclick">
+			<listview id="lv" droptarget="true" notify="active; doubleclick; dropfile">
 				<column icon="true"/> 
 			</listview>
 		
@@ -39,7 +39,7 @@
 
 	<window id="main" title="AnimPlayer" activate="true" menubar="menu">
 		<vgroup>
-			<hollywood display="1" fixwidth="false" fixheight="false"/>
+			<hollywood display="1" fixwidth="false" fixheight="false" droptarget="true" notify="dropfile"/>
 
 			<hgroup>
 				<button id="last" icon="1" disabled="true" tooltip="Go to previous Anim in Playlist">Last</button>

@@ -1,34 +1,36 @@
-
+﻿
 /****************************************************************
 **                                                             **
 ** Name:        AnimPlayer                                     **
 ** Author:      Dimitris Panokostas                            **
-** Version:     2.0                                            **
-** Date:        17.07.16                                       **
-** Interpreter: Hollywood 6.1                                  **
+** Version:     2.1                                            **
+** Date:        2017-05-01                                     **
+** Interpreter: Hollywood 6.1+                                 **
 **                                                             **
 ** History:                                                    **
-**                                                             **
+** - v2.1 Added Drag and Drop support                          **
 ** - initial release                                           **
 **                                                             **
 ****************************************************************/
 Const #DEBUG = False
 /*
-** Make sure we have Hollywood 6.1!
+** Make sure we have at least Hollywood 6.1
 */
 @VERSION 6,1
 
 /*
 ** This script requires the RapaGUI plugin
 */
-@REQUIRE "RapaGUI"
+@REQUIRE "RapaGUI", {Link = True}
+@REQUIRE "yafa", {Link = True}
+@REQUIRE "flicanim", {Link = True}
 
 /*
 ** Information about this app
 */
 @APPTITLE "AnimPlayer"
-@APPVERSION "$VER: AnimPlayer 2.0 beta (17.07.16)"
-@APPCOPYRIGHT "(C) Copyright 2016 by Dimitris Panokostas"
+@APPVERSION "$VER: AnimPlayer 2.1 (17.07.16)"
+@APPCOPYRIGHT "(C) Copyright 2016-2018 by Dimitris Panokostas"
 @APPAUTHOR "Dimitris Panokostas"
 @APPDESCRIPTION "A simple anim player done in Hollywood"
 
@@ -74,8 +76,6 @@ p_GetPluginFiletypes()
 
 ; listen to these events!
 InstallEventHandler({RapaGUI = p_EventFunc, SizeWindow = p_EventFunc})
-; Disabled OnDropFile until RapaGUI adds Drag and Drop support
-;InstallEventHandler({RapaGUI = p_EventFunc, SizeWindow = p_EventFunc, OnDropFile = p_EventFunc})
 
 musstate$ = "init"
 animDrawInterval = Nil
