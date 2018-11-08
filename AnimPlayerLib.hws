@@ -115,6 +115,9 @@ Function p_Play()
 	playing = True
 	p_RefreshActive()
 	
+	; Enable the Stop button
+	moai.Set("stop", "disabled", False)
+	
 	; create an interval function to draw the frames
 	If #DEBUG Then DebugPrint("p_Play(): Setting a new Interval")
 	animDrawInterval = SetInterval(Nil, p_DrawNextFrame, 20)
@@ -218,6 +221,13 @@ Function p_LoadSelectedAnim()
 
 	; do not fail if unknown error format
 	ExitOnError(False)
+
+	If HaveObject(#ANIM, 1) = True
+		If #DEBUG Then DebugPrint("p_LoadSelectedAnim(): FreeAnim")
+		FinishAsyncDraw(playingAnim)
+		p_SetStopStates()	
+		FreeAnim(1)
+	EndIf
 	
 	If #DEBUG Then DebugPrint("p_LoadSelectedAnim(): Attempting to call LoadAnim()...")
 	LoadAnim(1, f$, {FromDisk = True})
@@ -230,7 +240,6 @@ Function p_LoadSelectedAnim()
 	EndIf
 
 	; enable buttons that can be used now
-	moai.Set("stop", "disabled", False)
 	moai.Set("last", "disabled", (ac = 0))
 	moai.Set("next", "disabled", (ac = num - 1))
 	; Remove the previous layer
