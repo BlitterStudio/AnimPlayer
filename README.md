@@ -1,6 +1,6 @@
 # AnimPlayer
 A multiplatform Amiga Anim player with playlist support
-(c) 2016-2018 Dimitris Panokostas - dimitris AT blitterstudio DOT com
+(c) 2016-2018 Dimitris Panokostas
 
 ## Features:
 - Can play the following Amiga ANIM format files: ANIM5, ANIM7, ANIM8(L) ANIM16, ANIM32, YAFA.
