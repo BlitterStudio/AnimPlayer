@@ -16,6 +16,7 @@
 		
 		<menu title="V_iew">
 			<item id="mn_pl" type="toggle" selected="false" shortcut="Ctrl-L">Playlist</item>
+			<item id="mn_loop" type="toggle" selected="false">Loop Anims</item>
 		</menu>
 		<menu title="Help">
 			<item id="mn_about" shortcut="Shift-F1">_About...</item>		

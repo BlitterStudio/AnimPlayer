@@ -3,14 +3,14 @@
 **                                                             **
 ** Name:        AnimPlayer                                     **
 ** Author:      Dimitris Panokostas                            **
-** Version:     2.2                                            **
-** Date:        2018-11-08                                     **
-** Interpreter: Hollywood 6.1+                                 **
+** Version:     2.3                                            **
+** Date:        2018-11-10                                     **
+** Interpreter: Hollywood 7.1+                                 **
 **                                                             **
 ****************************************************************/
 Const #DEBUG = False
 /*
-** Make sure we have at least Hollywood 6.1
+** Make sure we have at least Hollywood 7.1
 */
 @VERSION 7,1
 
@@ -25,10 +25,10 @@ Const #DEBUG = False
 ** Information about this app
 */
 @APPTITLE "AnimPlayer"
-@APPVERSION "$VER: AnimPlayer 2.2 (2018-11-08)"
+@APPVERSION "$VER: AnimPlayer 2.3 (2018-11-10)"
 @APPCOPYRIGHT "(C) Copyright 2016-2018 by Dimitris Panokostas"
 @APPAUTHOR "Dimitris Panokostas"
-@APPDESCRIPTION "A simple anim player done in Hollywood"
+@APPDESCRIPTION "A simple Amiga ANIM player"
 
 /*
 ** Button and list view images
@@ -76,6 +76,7 @@ InstallEventHandler({RapaGUI = p_EventFunc, SizeWindow = p_EventFunc})
 musstate$ = "init"
 animDrawInterval = Nil
 animSize = "original"
+loopAnim = false
 
 ; main loop!
 Repeat

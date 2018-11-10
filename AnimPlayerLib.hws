@@ -287,7 +287,18 @@ Function p_DrawNextFrame()
 			ClearInterval(animDrawInterval)
 			animDrawInterval = Nil
 		EndIf
-		p_Next()
+		; If Loop Anims was selected, restart the same Anim instead of going to the Next one
+		If loopAnim = True
+			If #DEBUG Then DebugPrint("p_DrawNextFrame(): Loop is enabled...")
+			p_Stop()
+			If #DEBUG Then DebugPrint("p_DrawNextFrame(): Now calling p_LoadSelectedAnim()...")
+			p_LoadSelectedAnim()
+			If #DEBUG Then DebugPrint("p_DrawNextFrame(): Now calling p_Play() on the loaded Anim...")
+			p_Play()
+		Else
+			If #DEBUG Then DebugPrint("p_DrawNextFrame(): Anim ended, no Loop is enabled, skipping to Next...")
+			p_Next()
+		EndIf
 	EndIf
 EndFunction
 
@@ -344,6 +355,9 @@ Function p_GUIEvent(id)
 		moai.Request("AnimPlayer2", "AnimPlayer2\n(C) 2016 by Dimitris Panokostas\n", "OK")
 	Case "pl":
 		moai.Set("playlist", "open", moai.Get("mn_pl", "selected"))
+	Case "loop":
+		If #DEBUG Then DebugPrint("Clicked on Loop, current status: ", moai.Get("mn_loop", "selected"))
+		loopAnim = moai.Get("mn_loop", "selected")
 	Case "original":
 		animSize = "original"
 		p_ResizeDisplay(animSize)
