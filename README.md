@@ -10,6 +10,7 @@ A multiplatform Amiga Anim player with playlist support
 - Has playlist support. You can add a sequence of Anims and view them in the order you want.
 - Has quick resize options for: Original, Double size. Also able to freely resize manually of course.
 - Drag and drop support, adds files to playlist.
+- Loop support.
 - Runs on multiple platforms: AmigaOS3, AmigaOS4, AROS (x86), MorphOS, Linux (ARM, x86, PPC), MacOS, Win32.
 Note: Although you can run it on AmigaOS3, a real Classic will be too slow for it. You will need something
 faster than 060 and RTG to make use of it in real life (so either under emulation or a fancy FPGA accelerator).
