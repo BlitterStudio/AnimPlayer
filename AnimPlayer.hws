@@ -26,7 +26,7 @@ Const #DEBUG = False
 */
 @APPTITLE "AnimPlayer"
 @APPVERSION "$VER: AnimPlayer 2.3 (2018-11-10)"
-@APPCOPYRIGHT "(C) Copyright 2016-2018 by Dimitris Panokostas"
+@APPCOPYRIGHT "(C) Copyright 2016-2021 by Dimitris Panokostas"
 @APPAUTHOR "Dimitris Panokostas"
 @APPDESCRIPTION "A simple Amiga ANIM player"
 
