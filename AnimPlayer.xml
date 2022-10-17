@@ -4,6 +4,7 @@
 
 		<menu title="_File">
 			<item id="mn_open" shortcut="Ctrl-O">_Open...</item>
+			<item id="mn_save" shortcut="Ctrl-S">_Save As GIF...</item>
 			<item/>
 			<item id="mn_quit" shortcut="Ctrl-Q">_Quit</item>
 		</menu>

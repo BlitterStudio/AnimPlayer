@@ -3,16 +3,16 @@
 **                                                             **
 ** Name:        AnimPlayer                                     **
 ** Author:      Dimitris Panokostas                            **
-** Version:     2.3                                            **
-** Date:        2018-11-10                                     **
-** Interpreter: Hollywood 7.1+                                 **
+** Version:     2.4                                            **
+** Date:        2022-10-17                                     **
+** Interpreter: Hollywood 9.0+                                 **
 **                                                             **
 ****************************************************************/
 Const #DEBUG = False
 /*
-** Make sure we have at least Hollywood 7.1
+** Make sure we have at least Hollywood 9
 */
-@VERSION 7,1
+@VERSION 9,0
 
 /*
 ** This script requires the RapaGUI plugin
@@ -25,8 +25,8 @@ Const #DEBUG = False
 ** Information about this app
 */
 @APPTITLE "AnimPlayer"
-@APPVERSION "$VER: AnimPlayer 2.3 (2018-11-10)"
-@APPCOPYRIGHT "(C) Copyright 2016-2021 by Dimitris Panokostas"
+@APPVERSION "$VER: AnimPlayer 2.4 (2022-10-17)"
+@APPCOPYRIGHT "(C) Copyright 2016-2022 by Dimitris Panokostas"
 @APPAUTHOR "Dimitris Panokostas"
 @APPDESCRIPTION "A simple Amiga ANIM player"
 

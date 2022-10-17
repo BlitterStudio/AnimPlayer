@@ -320,6 +320,13 @@ Function p_GUIEvent(id)
 			p_InsertFilesInList(files)
 			If curvideo$ = "" Then p_LoadSelectedAnim()
 		EndIf
+	Case "save":
+		If curvideo$ <> ""
+			Local destination = FileRequest("Select destination filename", {Mode = #REQ_SAVEMODE})
+			If destination <> ""
+				SaveAnim(1, destination, #ANMFMT_GIF)
+			EndIf
+		EndIf
 	Case "add":
 		Local files = FileRequest("Select Anim(s) to play", freqmask$, #REQ_MULTISELECT)
 		If files[0] <> ""
