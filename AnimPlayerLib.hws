@@ -359,7 +359,7 @@ Function p_GUIEvent(id)
 		If #DEBUG Then DebugPrint("Remove: Attempting to remove the active item from the Playlist...")
 		moai.DoMethod("lv", "remove", "active")
 	Case "about":
-		moai.Request("AnimPlayer2", "AnimPlayer2\nCopyright (C) 2016-2021 by Dimitris Panokostas\n", "OK")
+		moai.Request("AnimPlayer", "AnimPlayer\nCopyright (C) 2016-2022 by Dimitris Panokostas\n", "OK")
 	Case "pl":
 		moai.Set("playlist", "open", moai.Get("mn_pl", "selected"))
 	Case "loop":
