@@ -55,7 +55,7 @@
                 "-compile",
                 "${fileBasenameNoExtension}",
                 "-exetype",
-                "win64|classic|morphos"
+                "'amigaos4|aros|classic|linux|linux64|linuxarm|linuxppc|macos64|morphos|win32|win64'"
             ]
         }
     ]
